@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORION BLUE — A Cozy Fishing Adventure</title>
+<meta name="description" content="A cozy fishing adventure set on a beautiful alien planet. Fish, explore, and connect at your own pace. Coming to Steam in 2026." />
+<meta property="og:title" content="ORION BLUE: A Cozy Fishing Adventure" />
+<meta property="og:description" content="A cozy fishing adventure set on a beautiful alien planet. Fish, explore, and connect at your own pace. Coming to Steam in 2026." />
+<meta property="og:image" content="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/857a2d4fcb8dac2532330166a51deba42a743c55/capsule_616x353.jpg?t=1780305700" />
+<meta property="og:url" content="https://playorionblue.com/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="ORION BLUE: A Cozy Fishing Adventure" />
+<meta name="twitter:description" content="A cozy fishing adventure set on a beautiful alien planet. Fish, explore, and connect at your own pace. Coming to Steam in 2026." />
+<meta name="twitter:image" content="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/857a2d4fcb8dac2532330166a51deba42a743c55/capsule_616x353.jpg?t=1780305700" />
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="apple-touch-icon" href="favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --color-bg: #050d1a;
+    --color-bg-alt: #081326;
+    --color-primary: #38bdf8;
+    --color-accent: #818cf8;
+    --color-warm: #fbbf24;
+    --color-glass: rgba(255,255,255,0.05);
+    --color-glass-border: rgba(148,197,255,0.14);
+    --color-text: #dce9f7;
+    --color-text-dim: #92a5c2;
+    --font-head: 'Cinzel', serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-family:var(--font-body);
+    overflow-x:hidden;
+    line-height:1.65;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--color-primary); color:#03110d; }
+
+  /* noise / pixel texture overlay */
+  .noise-overlay{
+    position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* starfield background layer */
+  .stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%, rgba(56,189,248,.7) 50%, transparent 100%),
+      radial-gradient(1px 1px at 32% 68%, rgba(255,255,255,.5) 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 12%, rgba(129,140,248,.6) 50%, transparent 100%),
+      radial-gradient(1px 1px at 68% 82%, rgba(255,255,255,.45) 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 82% 34%, rgba(56,189,248,.55) 50%, transparent 100%),
+      radial-gradient(1px 1px at 90% 65%, rgba(255,255,255,.4) 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 22% 88%, rgba(251,191,36,.4) 50%, transparent 100%);
+    background-size:100% 100%;
+    opacity:.7;
+    animation:twinkle 7s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle{ from{opacity:.4;} to{opacity:.85;} }
+
+  /* bubbles */
+  .bubbles{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+  .bubble{
+    position:absolute; bottom:-10%; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(56,189,248,.55), rgba(129,140,248,.12) 60%, transparent 75%);
+    border:1px solid rgba(56,189,248,.25);
+    animation-name:rise; animation-timing-function:ease-in; animation-iteration-count:infinite;
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:.7; }
+    90%{ opacity:.5; }
+    100%{ transform:translateY(-115vh) translateX(var(--drift, 30px)); opacity:0; }
+  }
+
+  /* nav */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 40px; height:64px;
+    background:rgba(5,13,26,.4);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:background .4s ease, backdrop-filter .4s ease, border-color .4s ease, box-shadow .4s ease;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  nav.scrolled{
+    background:rgba(5,13,26,.92);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border-bottom:1px solid rgba(56,189,248,.15);
+    box-shadow:0 4px 32px rgba(0,0,0,.4);
+  }
+  .nav-logo{
+    font-family:var(--font-head); font-weight:700; letter-spacing:.2em; font-size:.85rem;
+    color:#fff; text-decoration:none; text-shadow:0 0 20px rgba(56,189,248,.4);
+  }
+  .nav-links{ display:flex; align-items:center; gap:36px; }
+  .nav-links a{
+    position:relative;
+    font-family:var(--font-head); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(255,255,255,.85); text-decoration:none; transition:all .3s ease;
+  }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:-6px; width:100%; height:1px;
+    background:rgba(56,189,248,.7); display:block;
+    transform:scaleX(0); transform-origin:center; transition:transform .3s ease;
+  }
+  .nav-links a:hover{ color:#fff; text-shadow:0 0 12px rgba(56,189,248,.6); letter-spacing:.2em; }
+  .nav-links a:hover::after{ transform:scaleX(1); }
+  .nav-cta{
+    position:relative; overflow:hidden;
+    display:inline-flex; align-items:center;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.35); border-radius:50px;
+    padding:10px 22px; color:#fff; font-family:var(--font-head);
+    font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; text-decoration:none;
+    transition:all .3s ease;
+  }
+  .nav-cta:hover{
+    background:rgba(56,189,248,.15); border-color:rgba(56,189,248,.6);
+    box-shadow:0 0 16px rgba(56,189,248,.25);
+  }
+  .nav-toggle{ display:none; flex-direction:column; gap:5px; cursor:pointer; z-index:1001; }
+  .nav-toggle span{ width:22px; height:2px; background:#fff; border-radius:2px; }
+  @media (max-width:768px){
+    nav{ padding:0 20px; }
+    .nav-links{
+      position:fixed; top:64px; left:0; right:0;
+      flex-direction:column; align-items:center; gap:26px; padding:30px 20px;
+      background:rgba(5,13,26,.96); backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      transform:translateY(-12px); opacity:0; pointer-events:none;
+      transition:opacity .3s ease, transform .3s ease;
+    }
+    .nav-links.open{ transform:translateY(0); opacity:1; pointer-events:auto; }
+    .nav-toggle{ display:flex; }
+  }
+
+  /* hero */
+  .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; padding:0 20px; }
+  .hero-video, .hero-poster{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+  .hero-overlay{
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(5,13,26,.55) 0%, rgba(5,13,26,.5) 45%, rgba(5,13,26,.85) 100%);
+  }
+  .hero-content{ position:relative; z-index:3; max-width:780px; }
+  .hero-eyebrow{
+    display:inline-block; padding:6px 18px; border-radius:999px; margin-bottom:26px;
+    border:1px solid var(--color-glass-border); background:var(--color-glass); backdrop-filter:blur(8px);
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--color-primary);
+  }
+  .hero-title{
+    font-family:var(--font-head); font-weight:700;
+    font-size:clamp(2.8rem, 9vw, 6.2rem); letter-spacing:.03em; line-height:1.05;
+    color:#eaf6ff;
+    text-shadow:0 0 20px rgba(56,189,248,.55), 0 0 60px rgba(56,189,248,.35), 0 0 120px rgba(129,140,248,.25);
+    margin-bottom:24px;
+  }
+  .hero-tagline{ font-size:clamp(1.05rem, 2.3vw, 1.45rem); color:var(--color-text); margin-bottom:40px; font-weight:300; }
+
+  .hero-buttons{ display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:1rem; margin-top:2rem; }
+
+  .btn-wishlist{
+    position:relative; overflow:hidden;
+    background:linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    color:#03110d; font-family:var(--font-body); font-weight:600; font-size:.9rem;
+    text-decoration:none; box-shadow:0 0 20px rgba(56,189,248,.35);
+    transition:all .3s ease; cursor:pointer;
+  }
+  .btn-wishlist:hover{ transform:translateY(-2px); box-shadow:0 0 32px rgba(56,189,248,.55); }
+
+  .btn-download{
+    position:relative; overflow:hidden;
+    background:#0d1b2a; border:1px solid var(--color-primary); color:var(--color-primary);
+    font-family:var(--font-body); font-weight:600; font-size:.9rem;
+    text-decoration:none; transition:background .3s ease, color .3s ease, box-shadow .3s ease, transform .25s ease;
+    cursor:pointer;
+  }
+  .btn-download:hover{ background:var(--color-primary); color:#0d1b2a; transform:translateY(-3px) scale(1.03); }
+  .btn-download-lg:hover{ box-shadow:0 0 20px var(--color-primary); }
+
+  .btn-trailer{
+    position:relative; overflow:hidden;
+    background:transparent; border:1px solid #ff0000; color:#fff;
+    font-family:var(--font-body); font-weight:600; font-size:.9rem;
+    text-decoration:none; transition:background .3s ease, color .3s ease, transform .25s ease;
+    cursor:pointer;
+  }
+  .btn-trailer:hover{ background:#ff0000; color:#fff; transform:translateY(-3px) scale(1.03); }
+
+  .btn-caption{ display:block; width:100%; font-size:.75rem; color:var(--color-text-dim); text-align:center; margin:10px auto 0; }
+
+  @media (max-width:640px){
+    .hero-buttons{ flex-direction:column; align-items:center; }
+    .hero-buttons > a, .hero-buttons > div{ width:100%; max-width:360px; }
+  }
+
+  .btn{
+    position:relative; overflow:hidden;
+    display:inline-flex; align-items:center; gap:10px; padding:16px 34px; border-radius:12px;
+    font-weight:600; font-size:.95rem; letter-spacing:.02em; cursor:pointer; border:1px solid transparent;
+    transition:transform .28s ease, box-shadow .28s ease;
+  }
+  .btn-primary{
+    background:linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    color:#03110d; box-shadow:0 0 26px rgba(56,189,248,.4);
+    animation:pulseGlow 2.6s ease-in-out infinite;
+  }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 8px 42px rgba(56,189,248,.6); }
+  @keyframes pulseGlow{
+    0%,100%{ box-shadow:0 0 20px rgba(56,189,248,.35); }
+    50%{ box-shadow:0 0 40px rgba(56,189,248,.65), 0 0 70px rgba(129,140,248,.3); }
+  }
+
+  /* generic reveal */
+  .reveal{ opacity:0; transform:translateY(40px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.visible{ opacity:1; transform:translateY(0); }
+  .reveal-left{ opacity:0; transform:translateX(-40px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal-left.visible{ opacity:1; transform:translateX(0); }
+  .reveal-right{ opacity:0; transform:translateX(40px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal-right.visible{ opacity:1; transform:translateX(0); }
+  .reveal:nth-child(1){ transition-delay:0s; }
+  .reveal:nth-child(2){ transition-delay:.15s; }
+  .reveal:nth-child(3){ transition-delay:.3s; }
+
+  /* hero load-in entrance */
+  .hero-anim{ opacity:0; transform:translateY(30px); transition:opacity .8s ease, transform .8s ease; }
+  .hero-anim.in{ opacity:1; transform:translateY(0); }
+  .hero-anim-title{ transition-delay:.4s; }
+  .hero-anim-tagline{ transition-delay:.7s; }
+  .hero-anim-buttons{ transition-delay:1s; }
+  .hero-anim-caption{ transition-delay:1.2s; }
+
+  /* button ripple */
+  .ripple{
+    position:absolute; border-radius:50%;
+    width:100px; height:100px; margin-top:-50px; margin-left:-50px;
+    background:rgba(255,255,255,0.2);
+    animation:ripple .6s linear;
+    pointer-events:none;
+  }
+  @keyframes ripple{
+    from{ transform:scale(0); opacity:.3; }
+    to{ transform:scale(4); opacity:0; }
+  }
+
+  /* ambient particle canvas */
+  #particles-canvas{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
+
+  /* navbar scroll progress */
+  .scroll-progress{
+    position:absolute; top:0; left:0; height:2px; width:0%;
+    background:linear-gradient(to right, #38bdf8, #818cf8);
+    transition:width .1s ease; z-index:1001;
+  }
+
+  section{ position:relative; z-index:1; padding:120px 5%; }
+  .section-title{
+    font-family:var(--font-head); font-weight:700; font-size:clamp(1.9rem, 4vw, 2.7rem);
+    color:#eaf6ff; letter-spacing:.02em;
+  }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--color-primary); display:block; margin-bottom:14px; }
+
+  .glass-panel{
+    background:var(--color-glass); border:1px solid var(--color-glass-border); backdrop-filter:blur(14px);
+    border-radius:24px;
+  }
+
+  /* about */
+  .about-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:center; max-width:1180px; margin:0 auto; }
+  .about-media{ border-radius:20px; overflow:hidden; border:1px solid var(--color-glass-border); position:relative; box-shadow:0 30px 80px -30px rgba(56,189,248,.25); }
+  .about-media img{ width:100%; height:100%; object-fit:cover; }
+  .about-text p{ color:var(--color-text-dim); font-size:1.08rem; margin-bottom:22px; }
+  .about-tagline{ font-family:var(--font-head); font-size:1.35rem; color:var(--color-warm); letter-spacing:.02em; }
+
+  /* features */
+  .feature-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;
+    max-width:1180px; margin:0 auto; padding:60px 0; border-bottom:1px solid var(--color-glass-border);
+  }
+  .feature-row:last-child{ border-bottom:none; }
+  .feature-row.reverse .feature-media{ order:2; }
+  .feature-row.reverse .feature-text{ order:1; }
+  .feature-media{ position:relative; border-radius:18px; overflow:hidden; border:1px solid var(--color-glass-border); box-shadow:0 25px 70px -30px rgba(56,189,248,.3); }
+  .feature-media video{ width:100%; height:100%; object-fit:cover; display:block; aspect-ratio:16/9; background:#01040a; }
+  .feature-num{ font-family:var(--font-head); font-size:.85rem; color:var(--color-accent); letter-spacing:.16em; margin-bottom:16px; display:block; }
+  .feature-text h3{ font-family:var(--font-head); font-size:clamp(1.5rem, 3vw, 2rem); font-weight:600; margin-bottom:18px; color:#eaf6ff; }
+  .feature-text p{ color:var(--color-text-dim); font-size:1.03rem; }
+
+  /* download hero section */
+  .download-hero{
+    position:relative; display:flex; align-items:center; justify-content:center;
+  }
+  .download-hero-image{ display:block; width:100%; height:auto; border-radius:0; image-rendering:auto; }
+  .download-hero::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.3) 100%);
+    pointer-events:none;
+  }
+  .download-hero-cta{
+    position:absolute; z-index:2;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+
+  footer{
+    padding:44px 5%; border-top:1px solid var(--color-glass-border);
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px;
+    position:relative; z-index:1;
+  }
+  .footer-logo{
+    font-family:var(--font-head); font-weight:700; letter-spacing:.1em; font-size:1rem;
+    background:linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    order:1;
+  }
+  .footer-copy{ font-size:.8rem; color:var(--color-text-dim); text-align:center; flex:1 1 320px; order:2; }
+  .footer-links{ display:flex; gap:26px; flex-wrap:wrap; align-items:center; order:3; }
+  .footer-links a{ font-size:.85rem; color:var(--color-text-dim); transition:color .25s ease; }
+  .footer-links a:hover{ color:var(--color-primary); }
+
+  @media (max-width:900px){
+    .about-grid, .feature-row{ grid-template-columns:1fr; gap:34px; }
+    .feature-row.reverse .feature-media{ order:1; }
+    .feature-row.reverse .feature-text{ order:2; }
+    .about-media{ order:-1; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+<div class="stars"></div>
+<div class="noise-overlay"></div>
+
+<nav id="nav">
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <a href="#hero" class="nav-logo">ORION BLUE</a>
+  <div class="nav-links" id="navLinks">
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#download">Download</a>
+  </div>
+  <a href="https://store.steampowered.com/app/4264000/Orion_Blue/" target="_blank" rel="noopener" class="nav-cta">Wishlist on Steam</a>
+  <div class="nav-toggle" id="navToggle"><span></span><span></span><span></span></div>
+</nav>
+
+<header class="hero" id="hero">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto"
+    poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/562e9ab4d28fd19707977101d1b6939b2e9b8e85/page_bg_raw.jpg?t=1780305700">
+    <source src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/17573455d7ea1aad5db076163d8b246a.webm?t=1780305700" type="video/webm">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="bubbles" id="heroBubbles"></div>
+  <div class="hero-content">
+    <h1 class="hero-title hero-anim hero-anim-title" id="heroTitle">ORION BLUE</h1>
+    <p class="hero-tagline hero-anim hero-anim-tagline" id="heroTagline">A cozy fishing adventure on a beautiful alien planet.</p>
+    <div class="hero-buttons hero-anim hero-anim-buttons" id="heroCta">
+      <div class="flex flex-col items-center">
+        <a class="btn-download inline-flex items-center gap-2 rounded-full px-8 py-4 justify-center" href="https://github.com/playorionbluecom/playorionbluewebsite/releases/latest/download/OrionBlue_Beta_2.1.1.zip" download="OrionBlue_Beta_2.1.1.zip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 88 88" aria-hidden="true"><path fill="#f25022" d="M0 0h42v42H0z"/><path fill="#7fba00" d="M46 0h42v42H46z"/><path fill="#00a4ef" d="M0 46h42v42H0z"/><path fill="#ffb900" d="M46 46h42v42H46z"/></svg>
+          Download for Windows
+        </a>
+        <span class="btn-caption hero-anim hero-anim-caption">Free download · Beta · Windows 10 or later · 86 MB</span>
+      </div>
+
+      <a class="btn-trailer inline-flex items-center gap-2 rounded-full px-8 py-4 justify-center" href="https://www.youtube.com/watch?v=Z2B8Z9ZTABw" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ff0000" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        Watch Trailer
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal-left">
+        <span class="eyebrow">About the Game</span>
+        <h2 class="section-title" style="margin-bottom:26px;">A Peaceful World Awaits</h2>
+        <p>Orion Blue is a relaxing fishing adventure set on a beautiful alien planet. Play actively, or enjoy fishing at your own pace with idle progression. Discover a peaceful world and build your own life on Orion Blue.</p>
+        <p class="about-tagline">Play your way. Fish, explore, connect.</p>
+      </div>
+      <div class="about-media reveal-right">
+        <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/857a2d4fcb8dac2532330166a51deba42a743c55/capsule_616x353.jpg?t=1780305700" alt="Orion Blue key art" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div style="text-align:center; max-width:640px; margin:0 auto 70px;" class="reveal">
+      <span class="eyebrow">Features</span>
+      <h2 class="section-title">Life on Orion Blue</h2>
+    </div>
+
+    <div class="feature-row reveal-left">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/48ffb7a9876550d66284bc48aef999a5.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">01</span>
+        <h3>Explore the Planet</h3>
+        <p>Catch diverse fish species and mysterious lifeforms across unique alien regions.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal-right">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/41f2bc3dda1c39fbe235e0278a7cb7f6.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">02</span>
+        <h3>Fish at Your Own Pace</h3>
+        <p>Each area offers its own atmosphere and discoveries. Work toward completing your collection.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reveal-left">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/738a5107abf44d75bc351d0c9ddacc8e.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">03</span>
+        <h3>Meet the Residents</h3>
+        <p>Orion Blue is home to many locals. Talk with them and slowly build meaningful relationships.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal-right">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/0ee23725a088103b49aded44d57d7db0.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">04</span>
+        <h3>From Friendship to Romance</h3>
+        <p>Each resident has their own daily life and personal stories. Some relationships may turn into romance.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reveal-left">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/dc149f9eb248d4da40745f9f5dd4bd70.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">05</span>
+        <h3>Customize Your Space</h3>
+        <p>Craft furniture, apply wallpapers, and make your ship and living space truly yours.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal-right">
+      <div class="feature-media">
+        <video loop muted playsinline preload="none"
+          poster="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/c1a138fe512c2052ddd64c2e77c4e0a0.avif?t=1780305700"
+          data-src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/extras/74b85bf2be7956113ca8184beaf79eda.webm?t=1780305700"></video>
+      </div>
+      <div class="feature-text">
+        <span class="feature-num">06</span>
+        <h3>Idle Mode</h3>
+        <p>Relax and let the game progress on its own. Play your way, at your own pace.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="download-hero" id="download">
+    <img class="download-hero-image" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4264000/562e9ab4d28fd19707977101d1b6939b2e9b8e85/page_bg_raw.jpg?t=1780305700" alt="Orion Blue" loading="lazy">
+    <div class="download-hero-cta reveal">
+      <a class="btn-wishlist inline-flex items-center rounded-full px-8 py-4 justify-center" href="https://store.steampowered.com/app/4264000/Orion_Blue/" target="_blank" rel="noopener">Add to Wishlist on Steam</a>
+      <div class="flex flex-col items-center">
+        <a class="btn-download btn-download-lg inline-flex items-center gap-3 rounded-full px-10 py-5 text-lg justify-center" href="https://github.com/playorionbluecom/playorionbluewebsite/releases/latest/download/OrionBlue_Beta_2.1.1.zip" download="OrionBlue_Beta_2.1.1.zip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 88 88" aria-hidden="true"><path fill="#f25022" d="M0 0h42v42H0z"/><path fill="#7fba00" d="M46 0h42v42H46z"/><path fill="#00a4ef" d="M0 46h42v42H0z"/><path fill="#ffb900" d="M46 46h42v42H46z"/></svg>
+          Download for Windows
+        </a>
+        <span class="btn-caption">Free download · Beta · Windows 10 or later · 86 MB</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <a href="#hero" class="footer-logo reveal">ORION BLUE</a>
+  <p class="footer-copy reveal">© 2026 EXLIX. All rights reserved. Orion Blue is developed by EXLIX. All game assets, characters, and content are property of EXLIX.</p>
+  <div class="footer-links reveal">
+    <a href="https://store.steampowered.com/app/4264000/Orion_Blue/" target="_blank" rel="noopener">Steam Page</a>
+    <a href="privacy.html">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+  // nav scroll state + scroll progress bar
+  const scrollProgress = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.classList.toggle('scrolled', window.scrollY > 80);
+
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+    scrollProgress.style.width = pct + '%';
+  });
+
+  // mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // hero entrance animation
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.hero-anim').forEach(el => el.classList.add('in'));
+    });
+  });
+
+  // hero video fallback to poster if autoplay is blocked (mobile)
+  const heroVideo = document.getElementById('heroVideo');
+  const playPromise = heroVideo.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => { heroVideo.style.display = 'none'; });
+  }
+
+  // parallax on hero video
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y < window.innerHeight) {
+      heroVideo.style.transform = `translateY(${y * 0.35}px) scale(1.08)`;
+    }
+  }, { passive:true });
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // lazy-load feature videos when they scroll into view
+  const lazyVideos = document.querySelectorAll('.feature-media video[data-src]');
+  const videoIo = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const v = entry.target;
+        const src = document.createElement('source');
+        src.src = v.dataset.src;
+        src.type = 'video/webm';
+        v.appendChild(src);
+        v.load();
+        v.play().catch(() => {});
+        videoIo.unobserve(v);
+      }
+    });
+  }, { threshold: 0.25, rootMargin: '100px' });
+  lazyVideos.forEach(v => videoIo.observe(v));
+
+  // floating bubble particles in hero
+  const bubbleContainer = document.getElementById('heroBubbles');
+  const BUBBLE_COUNT = 20;
+  for (let i = 0; i < BUBBLE_COUNT; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 6 + Math.random() * 22;
+    const left = Math.random() * 100;
+    const duration = 10 + Math.random() * 14;
+    const delay = Math.random() * 14;
+    const drift = (Math.random() * 80 - 40) + 'px';
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.left = left + '%';
+    b.style.setProperty('--drift', drift);
+    b.style.animationDuration = duration + 's';
+    b.style.animationDelay = '-' + delay + 's';
+    bubbleContainer.appendChild(b);
+  }
+
+  // button ripple effect
+  function attachRipple(el) {
+    el.addEventListener('mousedown', (e) => {
+      const rect = el.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      el.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  }
+  document.querySelectorAll('.btn-wishlist, .btn-download, .btn-trailer, .nav-cta, .btn').forEach(attachRipple);
+
+  // ambient particle canvas
+  (function() {
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    const PARTICLE_COUNT = 60;
+    const PARTICLE_COLORS = ['#38bdf8', '#818cf8', '#ffffff'];
+    let particles = [];
+
+    function pickColor() {
+      const r = Math.random();
+      if (r < 0.4) return PARTICLE_COLORS[0];
+      if (r < 0.7) return PARTICLE_COLORS[1];
+      return PARTICLE_COLORS[2];
+    }
+
+    function makeParticle() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 1 + Math.random() * 2,
+        opacity: 0.2 + Math.random() * 0.4,
+        speed: 0.2 + Math.random() * 0.6,
+        offset: Math.random() * 1000,
+        color: pickColor()
+      };
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initParticles() {
+      resizeCanvas();
+      particles = Array.from({ length: PARTICLE_COUNT }, makeParticle);
+    }
+
+    function animateParticles(time) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.y -= p.speed;
+        p.x += Math.sin(time * 0.001 + p.offset) * 0.3;
+        if (p.y < 0) {
+          p.y = canvas.height;
+          p.x = Math.random() * canvas.width;
+        }
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    window.addEventListener('resize', resizeCanvas);
+    requestAnimationFrame(animateParticles);
+  })();
+</script>
+
+</body>
+</html>
